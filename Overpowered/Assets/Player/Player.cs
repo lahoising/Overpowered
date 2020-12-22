@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour
 {
     [SerializeField] private Camera cam = null;
+    [SerializeField] private Animator anim = null;
 
     [SerializeField] private Rigidbody rb = null;
     private InputMaster input;
@@ -11,6 +12,7 @@ public class Player : MonoBehaviour
     private Vector2 xzMoveBuffer = Vector2.zero;
     [SerializeField] private float walkSpeed = 10.0f;
     [SerializeField] private float runSpeed = 30.0f;
+    [SerializeField] private float rageSpeed = 100.0f;
     private float runMultiplier = 0.0f;
     
     private float yMoveBuffer = 0.0f;
@@ -26,6 +28,7 @@ public class Player : MonoBehaviour
     {
         if(!rb) rb = GetComponent<Rigidbody>();
         if(!cam) cam = Camera.main;
+        if(!anim) anim = GetComponent<Animator>();
 
         input = new InputMaster();
         input.Player.Movement.performed += InputMove;
@@ -73,8 +76,10 @@ public class Player : MonoBehaviour
         {
             dir.y = 0.0f;
             Quaternion rot = Quaternion.LookRotation(dir, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * lookRotationSpeed);
+            rb.MoveRotation(Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * lookRotationSpeed));
         }
+
+        anim.SetFloat("fwdSpeed", rb.velocity.sqrMagnitude);
     }
 
     /// <param name="dir">The direction to float to. Will be clamped between -1.0f to 1.0f</param>
