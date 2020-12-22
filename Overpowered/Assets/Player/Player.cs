@@ -22,7 +22,8 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        if(!rb) rb = GetComponent<Rigidbody>();
+        if(!cam) cam = Camera.main;
 
         input = new InputMaster();
         input.Player.Movement.performed += InputMove;
@@ -61,7 +62,8 @@ public class Player : MonoBehaviour
 
         if(xzMoveBuffer != Vector2.zero)
         {
-            Quaternion rot = Quaternion.LookRotation(fwd, Vector3.up);
+            dir.y = 0.0f;
+            Quaternion rot = Quaternion.LookRotation(dir, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * lookRotationSpeed);
         }
     }
