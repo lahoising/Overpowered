@@ -776,6 +776,7 @@ MonoBehaviour:
   rb: {fileID: 0}
   walkSpeed: 10
   runSpeed: 50
+  verticalSpeed: 1
   lookRotationSpeed: 10
 --- !u!54 &1164325035
 Rigidbody:

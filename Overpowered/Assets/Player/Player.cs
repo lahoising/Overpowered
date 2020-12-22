@@ -9,10 +9,12 @@ public class Player : MonoBehaviour
     private InputMaster input;
 
     private Vector2 xzMoveBuffer = Vector2.zero;
-    private float yMoveBuffer = 0.0f;
     [SerializeField] private float walkSpeed = 10.0f;
     [SerializeField] private float runSpeed = 30.0f;
     private float runMultiplier = 0.0f;
+    
+    private float yMoveBuffer = 0.0f;
+    [SerializeField] private float verticalSpeed = 2.0f;
 
     [SerializeField] private float lookRotationSpeed = 10.0f;
 
@@ -31,6 +33,12 @@ public class Player : MonoBehaviour
 
         input.Player.Run.performed += InputRun;
         input.Player.Run.canceled += InputRun;
+
+        input.Player.Jump.performed += InputJump;
+        input.Player.Jump.canceled += InputJump;
+
+        input.Player.Crouch.performed += InputCrouch;
+        input.Player.Crouch.canceled += InputCrouch;
     }
 
     void Update()
@@ -56,8 +64,9 @@ public class Player : MonoBehaviour
         Vector3 fwd = cam.transform.TransformDirection(Vector3.forward);
         fwd.y = 0.0f;
         Vector3 right = cam.transform.TransformDirection(Vector3.right);
-        Vector3 dir = new Vector3(xzMoveBuffer.x, yMoveBuffer, xzMoveBuffer.y);
+        Vector3 dir = new Vector3(xzMoveBuffer.x, 0.0f, xzMoveBuffer.y);
         dir = dir.x * right + dir.z * fwd;
+        dir.y = yMoveBuffer;
         rb.velocity = dir * speed;
 
         if(xzMoveBuffer != Vector2.zero)
@@ -66,6 +75,13 @@ public class Player : MonoBehaviour
             Quaternion rot = Quaternion.LookRotation(dir, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * lookRotationSpeed);
         }
+    }
+
+    /// <param name="dir">The direction to float to. Will be clamped between -1.0f to 1.0f</param>
+    private void SetFloatDir(float dir)
+    {
+        dir = Mathf.Clamp(dir, -1.0f, 1.0f);
+        yMoveBuffer = dir * verticalSpeed;
     }
 
     private void InputMove(InputAction.CallbackContext context)
@@ -77,6 +93,16 @@ public class Player : MonoBehaviour
     private void InputRun(InputAction.CallbackContext context)
     {
         runMultiplier = context.ReadValue<float>();
+    }
+
+    private void InputJump(InputAction.CallbackContext context)
+    {
+        SetFloatDir(context.ReadValue<float>());
+    }
+
+    private void InputCrouch(InputAction.CallbackContext context)
+    {
+        SetFloatDir(-context.ReadValue<float>());
     }
 
     void OnEnable()
