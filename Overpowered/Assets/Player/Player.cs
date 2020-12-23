@@ -9,16 +9,13 @@ public class Player : MonoBehaviour
     [SerializeField] private Rigidbody rb = null;
     private InputMaster input;
 
-    private Vector2 xzMoveBuffer = Vector2.zero;
     [SerializeField] private float walkSpeed = 10.0f;
     [SerializeField] private float runSpeed = 30.0f;
     [SerializeField] private float rageSpeed = 100.0f;
-    private float runMultiplier = 0.0f;
-    
-    private float yMoveBuffer = 0.0f;
-    [SerializeField] private float verticalSpeed = 2.0f;
-
+    [SerializeField] private float verticalSpeed = 25.0f;
     [SerializeField] private float lookRotationSpeed = 10.0f;
+    private float runMultiplier = 0.0f;
+    private Vector2 xzMoveBuffer = Vector2.zero;
 
     #if UNITY_EDITOR
     private bool lockMouse = false;
@@ -69,8 +66,9 @@ public class Player : MonoBehaviour
         Vector3 right = cam.transform.TransformDirection(Vector3.right);
         Vector3 dir = new Vector3(xzMoveBuffer.x, 0.0f, xzMoveBuffer.y);
         dir = dir.x * right + dir.z * fwd;
-        dir.y = yMoveBuffer;
-        rb.velocity = dir * speed;
+        dir *= speed;
+        dir.y = rb.velocity.y;
+        rb.velocity = dir;
 
         if(xzMoveBuffer != Vector2.zero)
         {
@@ -79,14 +77,18 @@ public class Player : MonoBehaviour
             rb.MoveRotation(Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * lookRotationSpeed));
         }
 
-        anim.SetFloat("fwdSpeed", rb.velocity.sqrMagnitude);
+        anim.SetFloat("fwdSpeed", xzMoveBuffer.sqrMagnitude);
+        anim.SetFloat("verticalSpeed", rb.velocity.y);
+        anim.SetBool("floating", !rb.useGravity);
     }
 
     /// <param name="dir">The direction to float to. Will be clamped between -1.0f to 1.0f</param>
     private void SetFloatDir(float dir)
     {
         dir = Mathf.Clamp(dir, -1.0f, 1.0f);
-        yMoveBuffer = dir * verticalSpeed;
+        Vector3 vel = rb.velocity;
+        vel.y = dir * verticalSpeed;
+        rb.velocity = vel;
     }
 
     private void InputMove(InputAction.CallbackContext context)
@@ -102,12 +104,32 @@ public class Player : MonoBehaviour
 
     private void InputJump(InputAction.CallbackContext context)
     {
-        SetFloatDir(context.ReadValue<float>());
+        if(context.interaction is UnityEngine.InputSystem.Interactions.MultiTapInteraction)
+        {
+            rb.useGravity = false;
+        }
+        else
+        {
+            if(isFloating)
+            {
+                SetFloatDir(context.ReadValue<float>());
+            }
+        }
     }
 
     private void InputCrouch(InputAction.CallbackContext context)
     {
-        SetFloatDir(-context.ReadValue<float>());
+        if(context.interaction is UnityEngine.InputSystem.Interactions.MultiTapInteraction)
+        {
+            rb.useGravity = true;
+        }
+        else
+        {
+            if(isFloating)
+            {
+                SetFloatDir(-context.ReadValue<float>());
+            }
+        }
     }
 
     void OnEnable()
@@ -118,5 +140,10 @@ public class Player : MonoBehaviour
     void OnDisable()
     {
         input.Disable();
+    }
+
+    public bool isFloating
+    {
+        get {return !rb.useGravity;}
     }
 }

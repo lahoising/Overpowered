@@ -48,7 +48,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""id"": ""2ea3ed7c-b199-4d5f-baa8-cdbc209c84ac"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """"
+                    ""interactions"": ""Press,MultiTap""
                 },
                 {
                     ""name"": ""Crouch"",
@@ -56,7 +56,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""id"": ""a0b411c1-5f95-4e60-879f-1c16f6d37859"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """"
+                    ""interactions"": ""Press,MultiTap""
                 }
             ],
             ""bindings"": [
