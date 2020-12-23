@@ -16,10 +16,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float lookRotationSpeed = 10.0f;
     private float runMultiplier = 0.0f;
     private Vector2 xzMoveBuffer = Vector2.zero;
-
-    #if UNITY_EDITOR
-    private bool lockMouse = false;
-    #endif
+    
+    [SerializeField] private float jumpForce = 30.0f;
+    private bool isGrounded = false;
 
     void Awake()
     {
@@ -41,23 +40,6 @@ public class Player : MonoBehaviour
         input.Player.Crouch.canceled += InputCrouch;
     }
 
-    void Update()
-    {
-        #if UNITY_EDITOR
-        if(Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            lockMouse = !lockMouse;
-        }
-
-        if(lockMouse)
-        {
-        #endif
-            Mouse.current.WarpCursorPosition(Vector2.zero);
-        #if UNITY_EDITOR
-        }
-        #endif
-    }
-
     void FixedUpdate()
     {
         float speed = Mathf.Lerp(walkSpeed, runSpeed, runMultiplier);
@@ -76,6 +58,8 @@ public class Player : MonoBehaviour
             Quaternion rot = Quaternion.LookRotation(dir, Vector3.up);
             rb.MoveRotation(Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * lookRotationSpeed));
         }
+
+        isGrounded = !isFloating && Physics.Raycast(transform.position, Vector3.down, 1.0f);
 
         anim.SetFloat("fwdSpeed", xzMoveBuffer.sqrMagnitude);
         anim.SetFloat("verticalSpeed", rb.velocity.y);
@@ -106,13 +90,21 @@ public class Player : MonoBehaviour
     {
         if(context.interaction is UnityEngine.InputSystem.Interactions.MultiTapInteraction)
         {
-            rb.useGravity = false;
+            if(context.performed) 
+            {
+                rb.useGravity = false;
+                SetFloatDir(0.0f);
+            }
         }
         else
         {
             if(isFloating)
             {
                 SetFloatDir(context.ReadValue<float>());
+            }
+            else if(isGrounded && context.performed)
+            {
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             }
         }
     }
@@ -121,7 +113,11 @@ public class Player : MonoBehaviour
     {
         if(context.interaction is UnityEngine.InputSystem.Interactions.MultiTapInteraction)
         {
-            rb.useGravity = true;
+            if(context.performed) 
+            {
+                rb.useGravity = true;
+                SetFloatDir(0.0f);
+            }
         }
         else
         {
