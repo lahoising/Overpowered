@@ -890,6 +890,7 @@ MonoBehaviour:
   rageSpeed: 100
   verticalSpeed: 25
   lookRotationSpeed: 10
+  jumpForce: 7
 --- !u!54 &1164325035
 Rigidbody:
   m_ObjectHideFlags: 0
