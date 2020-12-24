@@ -47,7 +47,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""type"": ""Button"",
                     ""id"": ""2ea3ed7c-b199-4d5f-baa8-cdbc209c84ac"",
                     ""expectedControlType"": ""Button"",
-                    ""processors"": ""Normalize(max=1)"",
+                    ""processors"": """",
                     ""interactions"": ""Press,MultiTap""
                 },
                 {
@@ -131,7 +131,7 @@ public class @InputMaster : IInputActionCollection, IDisposable
                     ""id"": ""335bc6a6-e4e6-46d5-8346-0d5a9c59d98e"",
                     ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
-                    ""processors"": ""ScaleVector2(x=0.1,y=0.02)"",
+                    ""processors"": ""ScaleVector2(y=0.2)"",
                     ""groups"": """",
                     ""action"": ""Look"",
                     ""isComposite"": false,
